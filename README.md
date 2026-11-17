@@ -1,10 +1,41 @@
-# locode
+<p align="center"><img src="assets/icon/locode.png" width="96" height="96" alt=""></p>
 
-A local coding assistant that configures itself.
+<h1 align="center">locode</h1>
 
-One program measures your computer, picks and downloads the open-weight models it can actually run,
-and gives you a coding agent on top of them, in a window of its own or in the terminal. Everything
-runs on your computer: no cloud, no account, no telemetry.
+<p align="center">
+  <b>A local coding assistant that configures itself.</b><br>
+  One program measures your computer, picks and downloads the open-weight models it can actually run,
+  and gives you a coding agent on top of them, in a window of its own or in the terminal.<br>
+  Everything runs on your computer: no cloud, no account, no telemetry.
+</p>
+
+<p align="center">
+  <a href="https://github.com/derob98/locode/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/derob98/locode?label=latest%20release"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/derob98/locode/releases/latest/download/locode-setup-windows-amd64.exe"><b>Download for Windows</b></a>
+  &nbsp;·&nbsp; <a href="#macos-and-linux"><b>macOS and Linux</b></a>
+  &nbsp;·&nbsp; <a href="#first-opening">How the setup works</a>
+  &nbsp;·&nbsp; <a href="#known-limits">Known limits</a>
+</p>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/chat-dark.png">
+  <img src="assets/readme/chat-light.png" alt="The locode window: the agent has written a Go module and its test, seen the test fail and fixed the code, and now asks before running the tests again">
+</picture>
+
+- **It sets itself up.** It measures the processor, memory, graphics card and disk, chooses four models
+  that fit (from a small, fast one to the largest the machine can hold), downloads them and tunes each
+  one on your computer.
+- **It picks the model for the task.** A question goes to the fast model, a refactoring to a large one;
+  it moves up by itself when a model gets stuck.
+- **It asks before it acts.** Every file it writes, command it runs and page it fetches is confirmed
+  first; every change is listed with its diff and can be undone.
+- **It stays on your computer.** The models run with [llama.cpp](https://github.com/ggml-org/llama.cpp)
+  on your graphics card or processor. Nothing about you, your code or your prompts is sent anywhere.
+- **It speaks the open formats.** `AGENTS.md` instructions, MCP servers, `SKILL.md` skills, hooks, and
+  an OpenAI-compatible endpoint for your other tools.
 
 ## Install
 
@@ -61,6 +92,11 @@ time it walks you through the setup, asking once before it downloads anything:
    the standard models or their uncensored variants; it shows sizes, licences and the disk needed.
 4. **It downloads** them (resumable, SHA-256 verified), **tunes** each one on your machine (GPU layers,
    context size, KV cache, speculative decoding) and shows the tokens per second it measured.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/setup-dark.png">
+  <img src="assets/readme/setup-light.png" alt="The setup proposes one model for each of the four tiers, with their size and the speed expected on this computer, a full or light install, and standard or uncensored models">
+</picture>
 
 Models take from a few to tens of gigabytes. In a terminal, `locode setup` does the same
 (`-yes` to run unattended) and `locode doctor` only measures and tells you what the machine can do.
@@ -202,6 +238,12 @@ upstream prebuilt one.
   well each one handles tools is checked when the catalog is made, not on your machine.
 - Model files you already have elsewhere are not reused. There is no self-update: run the installer
   again. No plugins, themes, vim mode or editor integration.
+
+## Feedback
+
+Bug reports and ideas are welcome in the [issues](https://github.com/derob98/locode/issues). For a
+bug, say which system and version you have (`locode version`); if the window misbehaved on Windows,
+`logs\app.log` in the data folder (see *Uninstall* for where it is) says what happened.
 
 ## Licence
 
