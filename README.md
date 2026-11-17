@@ -2,55 +2,77 @@
 
 A local coding assistant that configures itself.
 
-One binary measures your machine, picks and downloads the open-weight models it can actually run, and
-gives you a terminal coding agent on top of them. Everything runs on your computer: no cloud, no
-account, no telemetry.
+One program measures your computer, picks and downloads the open-weight models it can actually run,
+and gives you a coding agent on top of them, in a window of its own or in the terminal. Everything
+runs on your computer: no cloud, no account, no telemetry.
 
 ## Install
 
-macOS and Linux:
+### Windows
 
-```sh
-curl -fsSL https://github.com/derob98/locode/releases/latest/download/install.sh | sh
-```
+1. Download the installer from the [latest release](https://github.com/derob98/locode/releases/latest):
+   [`locode-setup-windows-amd64.exe`](https://github.com/derob98/locode/releases/latest/download/locode-setup-windows-amd64.exe)
+   for almost every PC, or
+   [`locode-setup-windows-arm64.exe`](https://github.com/derob98/locode/releases/latest/download/locode-setup-windows-arm64.exe)
+   for ARM ones (Snapdragon).
+2. Open it. The program is not signed, so Windows may warn you first:
+   - the browser may say the file *isn't commonly downloaded*: choose **Keep** (in Edge: `…` → **Keep**
+     → **Keep anyway**);
+   - *Windows protected your PC*: click **More info**, then **Run anyway**.
+3. Answer **Yes**. locode goes into the Start menu and into **Settings → Apps**, for your user only (no
+   administrator rights), and opens.
 
-Windows (PowerShell):
+From a terminal the same install is one line of PowerShell:
 
 ```powershell
 irm https://github.com/derob98/locode/releases/latest/download/install.ps1 | iex
 ```
 
-No administrator rights and no prerequisites. The script downloads one binary for your platform,
-checks its SHA-256 against the release's `checksums.txt` and puts it in `~/.local/bin` (macOS, Linux)
-or `%LOCALAPPDATA%\Programs\locode` (Windows, added to your user `PATH`).
+### macOS and Linux
+
+```sh
+curl -fsSL https://github.com/derob98/locode/releases/latest/download/install.sh | sh
+```
+
+On macOS this makes **locode.app** in `~/Applications` (find it with Spotlight or Launchpad); on Linux,
+an entry in the applications menu. Both also put the `locode` command in `~/.local/bin`.
+
+The installers download one program for your platform and check its SHA-256 against the release's
+`checksums.txt`. They take a few variables:
 
 | Variable | Effect |
 | --- | --- |
-| `LOCODE_VERSION` | install a given release, for example `v0.1.0`, instead of the latest |
-| `LOCODE_INSTALL_DIR` | put the binary somewhere else |
+| `LOCODE_VERSION` | install a given release, for example `v0.2.0`, instead of the latest |
+| `LOCODE_INSTALL_DIR` | put the program somewhere else (default `%LOCALAPPDATA%\Programs\locode`, `~/.local/bin`) |
 | `LOCODE_NO_MODIFY_PATH` | Windows: leave the user `PATH` alone |
+| `LOCODE_NO_SHORTCUT` | no Start menu entry, applications-menu entry or `locode.app` |
 
-## First run
+## First opening
 
-```sh
-locode setup
-```
+Open **locode** from the Start menu, Spotlight or the applications menu (or run `locode app`). The first
+time it walks you through the setup, asking once before it downloads anything:
 
-`setup` does the whole job, asking once before it downloads anything:
+1. **It measures the computer**: processor, memory free right now, graphics card and its memory, disk
+   space, plus short speed tests.
+2. **It installs the runtime**: a pinned [llama.cpp](https://github.com/ggml-org/llama.cpp) build for
+   what it found (CUDA, Vulkan, Metal or CPU), checked against known hashes.
+3. **It proposes the models**, one for each of four tiers (`max`, `complex`, `daily`, `fast`): the best of
+   its catalog that fit the memory and run fast enough. You choose the full install or a light one, and
+   the standard models or their uncensored variants; it shows sizes, licences and the disk needed.
+4. **It downloads** them (resumable, SHA-256 verified), **tunes** each one on your machine (GPU layers,
+   context size, KV cache, speculative decoding) and shows the tokens per second it measured.
 
-1. **Profiles the hardware**: CPU and its instruction sets, total and free RAM, GPUs and VRAM, disk
-   space, plus short memory and disk benchmarks.
-2. **Installs the runtime**: a pinned [llama.cpp](https://github.com/ggml-org/llama.cpp) build for the
-   backend it found (CUDA, Vulkan, Metal or CPU), checked against known hashes.
-3. **Picks four tiers** (`max`, `complex`, `daily`, `fast`) among the models of its catalog that fit
-   the memory that is free right now, and shows what it would download: sizes, licences, disk space.
-4. **Downloads** them (resumable, SHA-256 verified), **tunes** each one (GPU layers, context size,
-   KV cache, speculative decoding) and prints a table with the tokens per second it measured.
-
-Models take from a few to tens of gigabytes. `locode setup -yes` runs unattended; `locode doctor`
-does only steps 1 and 2 and tells you what the machine can do.
+Models take from a few to tens of gigabytes. In a terminal, `locode setup` does the same
+(`-yes` to run unattended) and `locode doctor` only measures and tells you what the machine can do.
 
 ## Use
+
+In the window: pick a project folder (or none, for a plain chat), then ask. Before the agent writes a
+file, runs a command or fetches a page it asks you; every change it makes is listed with its diff and
+can be undone. The models page lists what is installed, measures it again and removes what you no
+longer use; the settings show the data folder and how to uninstall.
+
+In a terminal:
 
 ```sh
 cd your-project
@@ -70,25 +92,34 @@ What the agent does, with local models in mind:
   (Go, Node, Python, Rust, or the commands you configure) and feeds the errors back to the model.
 - **Spends context carefully**: a map of the repository in the prompt, long files read in chunks,
   a token budget per tool, old tool output pruned first, summaries written by the `fast` model.
-- **Shows what is going on**: a live panel with the active model, tokens per second, context used,
-  VRAM and RAM.
+- **Shows what is going on**: the active model, tokens per second, context used, VRAM and RAM.
 
-It also has the things you would expect from a terminal agent: file, search, shell and web-fetch
-tools; permission modes including plan mode; checkpoints and `/rewind`; sessions you can resume and
-fork; manual and automatic compaction; `AGENTS.md` and `CLAUDE.md` instructions; MCP servers
-(stdio, HTTP, SSE); skills in the `SKILL.md` format; hooks; subagents, also in the background;
-memory across sessions; goals and loops; git worktrees; a status line. The interface speaks English
-and Italian and follows the system language (`LOCODE_LANG=en|it` to force one).
-Type `/help` inside the agent and `locode -h` for its flags.
+It also has the things you would expect from a coding agent: file, search, shell and web-fetch tools;
+permission modes including plan mode; checkpoints and rewind; sessions you can resume and fork; manual
+and automatic compaction; `AGENTS.md` and `CLAUDE.md` instructions; MCP servers (stdio, HTTP, SSE);
+skills in the `SKILL.md` format; hooks; subagents, also in the background; memory across sessions;
+goals and loops; git worktrees; a status line. It speaks English and Italian and follows the system
+language (`LOCODE_LANG=en|it` to force one). Type `/help` inside the agent and `locode -h` for its flags.
+
+## Better models over time
+
+New open-weight models come out every month. Each release of locode carries a curated catalog: models
+checked for tool calling, with their licence, a published quality score, and every file pinned by
+commit and SHA-256. **Look for better models** on the models page (and `locode setup` or
+`locode doctor` in a terminal) fetches the catalog of the latest release, makes the choice again for
+your machine and tells you, tier by tier, where a model with a higher score now fits, with what it
+would download. Nothing changes until you say so; the models you have stay on the disk until you
+remove them. When the catalog needs a newer locode, it says so.
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
+| `locode app` | the window (`-no-window` prints its address instead) |
 | `locode [flags] [prompt]` | the coding agent in the current folder |
 | `locode -p "prompt"` | headless mode (`-output-format text`, `json` or `stream-json`) |
-| `locode setup` | profile, runtime, the four model tiers, tuning and the results table |
-| `locode doctor` | detect the hardware, run the benchmarks, save the profile |
+| `locode setup` | measure, runtime, the four model tiers, tuning and the results table |
+| `locode doctor` | detect the hardware, run the speed tests, save the profile, look for better models |
 | `locode bench` | measure the installed models again |
 | `locode models` | list the catalog: sizes, licences, what is installed, tiers and speeds |
 | `locode update` | download the current model catalog (SHA-256 checked) |
@@ -100,18 +131,27 @@ Type `/help` inside the agent and `locode -h` for its flags.
 
 - By default the agent asks before it writes a file, runs a command or fetches a URL. Writes are
   limited to the working folder, and destructive commands are always confirmed, in every mode.
+  "Always in this session" covers only what the question names: the commands it lists, or one site.
 - Settings found inside a project can only restrict what the agent may do until you say you trust
   that folder: a cloned repository cannot approve its own commands.
+- The window talks only to a server on `127.0.0.1`, with a new secret for every run. Links in the
+  answers open in your own browser.
 - The network is used for: the llama.cpp runtime and this project's catalog (GitHub), the models
   (Hugging Face), and whatever you ask the agent to fetch or the MCP servers you configure. Nothing
   about you, your code or your prompts is sent anywhere.
 
 ## Update
 
-Run the install command again to get a newer binary: your models and settings stay.
-`locode update` refreshes only the model catalog.
+Download and open the installer again (or run the install command again): your models,
+conversations and settings stay. When the new version brings a newer llama.cpp, the first opening
+downloads it and measures your models again with it, which takes a few minutes; the old one is
+deleted. When the latest catalog has models that only a newer locode can use, the models page says
+so. `locode update` refreshes only the model catalog.
 
 ## Uninstall
+
+On Windows: **Settings → Apps → locode → Uninstall**. It asks whether to remove the models and data
+too, or to keep them for a later install. Everywhere, from a terminal:
 
 ```sh
 locode uninstall
@@ -121,7 +161,8 @@ It lists what it is about to delete and asks (`-yes` to skip the question):
 
 - the data folder with the runtime, models, profile, sessions and settings. If you moved it to
   another disk behind a symlink or a junction, the real folder is deleted too, not just the link;
-- the `locode` binary itself;
+- the programs, the Start menu entry and the entry in Windows' installed apps, `locode.app` on macOS,
+  the applications-menu entry and its icon on Linux;
 - on Windows, the entry the installer added to your user `PATH`.
 
 The data folder is `%LOCALAPPDATA%\locode` on Windows, `~/Library/Application Support/locode` on
@@ -133,13 +174,15 @@ have added to your shell profile by hand.
 
 ## Platforms
 
-| System | Processors | GPU backends |
-| --- | --- | --- |
-| Windows 10 and 11 | x64, ARM64 | CUDA (x64), Vulkan, CPU |
-| Linux (glibc) | x64, ARM64 | CUDA (x64), Vulkan, CPU |
-| macOS 13 or later | Apple Silicon, Intel | Metal (Apple Silicon), CPU |
+| System | Processors | GPU backends | Window |
+| --- | --- | --- | --- |
+| Windows 10 and 11 | x64, ARM64 | CUDA (x64), Vulkan, CPU | its own (WebView2); without WebView2, an Edge or Chrome app window |
+| macOS 13 or later | Apple Silicon, Intel | Metal (Apple Silicon), CPU | its own (WebKit) |
+| Linux (glibc) | x64, ARM64 | CUDA (x64), Vulkan, CPU | a Chrome, Chromium or Edge app window, or the default browser |
 
-`locode` itself is a static binary; the llama.cpp runtime it downloads is the upstream prebuilt one.
+Windows 11 has WebView2 built in; most Windows 10 PCs have it too. On Linux the program stays a
+static binary that also runs on servers without a desktop. The llama.cpp runtime it downloads is the
+upstream prebuilt one.
 
 ## Known limits
 
@@ -147,22 +190,23 @@ have added to your shell profile by hand.
   the gap on everyday work; they do not close it on hard problems. There are no public benchmark
   numbers for locode.
 - **Windows is where it is developed and tested with real models.** The Linux and macOS builds are
-  covered by automated tests and by an automated install, `doctor` and uninstall run, not by daily use.
-- **The binaries are not code-signed.** Installed with the commands above they run without prompts,
-  but antivirus software or company policy may still object, and Windows 11 Smart App Control, where
-  it is turned on, blocks unsigned programs with no per-app exception. If you download a macOS binary
-  with a browser instead, remove the quarantine flag: `xattr -d com.apple.quarantine locode-darwin-arm64`.
+  covered by automated tests and by an automated run of the installer, `doctor`, the window (macOS)
+  and uninstall, not by daily use.
+- **The programs are not code-signed.** See the warnings under *Install*. Antivirus software or
+  company policy may still object, and Windows 11 Smart App Control, where it is turned on, blocks
+  unsigned programs with no per-app exception. If you download a macOS binary with a browser instead
+  of the install command, remove the quarantine flag: `xattr -d com.apple.quarantine locode-darwin-arm64`.
 - **One large model in memory at a time.** Changing tier means loading another model, which takes
   from seconds to minutes depending on the disk.
 - **Models are chosen by memory fit and measured speed**, with quality scores from the catalog; how
-  well each one handles tools is not measured on your machine.
+  well each one handles tools is checked when the catalog is made, not on your machine.
 - Model files you already have elsewhere are not reused. There is no self-update: run the installer
   again. No plugins, themes, vim mode or editor integration.
 
 ## Licence
 
-The binaries are free to use, for personal and commercial work. Copyright © 2026 Gianluca De
+The programs are free to use, for personal and commercial work. Copyright © 2026 Gianluca De
 Robertis, all rights reserved; the source code is not published. See [LICENSE](LICENSE).
-The open-source components inside the binary are listed with their licences in
+The open-source components inside the program are listed with their licences in
 `THIRD_PARTY_LICENSES.txt`, attached to every release. llama.cpp and the models are separate works,
-downloaded under their own licences, which `setup` shows before each download.
+downloaded under their own licences, which the setup shows before each download.
