@@ -144,7 +144,8 @@ checked for tool calling, with their licence, a published quality score, and eve
 commit and SHA-256. **Look for better models** on the models page (and `locode setup` or
 `locode doctor` in a terminal) fetches the catalog of the latest release, makes the choice again for
 your machine and tells you, tier by tier, where a model with a higher score now fits, with what it
-would download. Nothing changes until you say so; the models you have stay on the disk until you
+would download. The app also does it by itself when it opens, at most once a day, and says so on the
+start screen. Nothing changes until you say so; the models you have stay on the disk until you
 remove them. When the catalog needs a newer locode, it says so.
 
 ## Commands
