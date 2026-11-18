@@ -3,9 +3,10 @@
 <h1 align="center">locode</h1>
 
 <p align="center">
-  <b>A local coding assistant that configures itself.</b><br>
+  <b>A local coding assistant that configures itself, and looks after your PC too.</b><br>
   One program measures your computer, picks and downloads the open-weight models it can actually run,
-  and gives you a coding agent on top of them, in a window of its own or in the terminal.<br>
+  and gives you an agent on top of them, in a window of its own or in the terminal: it works on your
+  code, and on the computer itself, asking before every change.<br>
   Everything runs on your computer: no cloud, no account, no telemetry.
 </p>
 
@@ -17,6 +18,7 @@
   <a href="https://github.com/derob98/locode/releases/latest/download/locode-setup-windows-amd64.exe"><b>Download for Windows</b></a>
   &nbsp;·&nbsp; <a href="#macos-and-linux"><b>macOS and Linux</b></a>
   &nbsp;·&nbsp; <a href="#first-opening">How the setup works</a>
+  &nbsp;·&nbsp; <a href="#looking-after-your-pc">Looking after your PC</a>
   &nbsp;·&nbsp; <a href="#known-limits">Known limits</a>
 </p>
 
@@ -32,6 +34,10 @@
   it moves up by itself when a model gets stuck.
 - **It asks before it acts.** Every file it writes, command it runs and page it fetches is confirmed
   first; every change is listed with its diff and can be undone.
+- **It looks after your PC.** Ask without a folder, for example *the PC is slow, what can I do?*: it
+  looks at disk space, startup programs and processes without asking, proposes a plan and asks before
+  every change. Administrator rights go one command at a time: its own question first, then the
+  system's dialog.
 - **It stays on your computer.** The models run with [llama.cpp](https://github.com/ggml-org/llama.cpp)
   on your graphics card or processor. Nothing about you, your code or your prompts is sent anywhere.
 - **It speaks the open formats.** `AGENTS.md` instructions, MCP servers, `SKILL.md` skills, hooks, and
@@ -103,7 +109,8 @@ Models take from a few to tens of gigabytes. In a terminal, `locode setup` does 
 
 ## Use
 
-In the window: pick a project folder (or none, for a plain chat), then ask. Before the agent writes a
+In the window: pick a project folder and ask, or ask without a folder, about your PC (see
+[Looking after your PC](#looking-after-your-pc)) or, with **Conversation only**, for a plain chat. Before the agent writes a
 file, runs a command or fetches a page it asks you; every change it makes is listed with its diff and
 can be undone. The models page lists what is installed, measures it again and removes what you no
 longer use; the settings show the data folder and how to uninstall.
@@ -137,6 +144,32 @@ skills in the `SKILL.md` format; hooks; subagents, also in the background; memor
 goals and loops; git worktrees; a status line. It speaks English and Italian and follows the system
 language (`LOCODE_LANG=en|it` to force one). Type `/help` inside the agent and `locode -h` for its flags.
 
+## Looking after your PC
+
+On the start screen, ask without opening a folder: *how much free space do I have, and what fills
+it?*, *the PC is slow to start: what starts by itself?*, *clean up the temporary files*. Tick
+**Conversation only** instead for a plain chat that neither looks at nor touches the PC.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/pc-dark.png">
+  <img src="assets/readme/pc-light.png" alt="locode asks before running sfc /scannow with administrator rights: the exact command, why it is needed, how to go back, then No or Run as administrator">
+</picture>
+
+- **It looks first, without asking.** Commands that only read (disk space, the largest folders,
+  startup programs, running processes, the power plan, the antivirus status) run straight away; on
+  Windows each one is checked with PowerShell's own parser against a closed list. Anything else asks.
+- **It asks before every change.** Deleting is shown in red, with no "always" button; files outside
+  its own folder (`locode` in your home folder, where reports and scripts go) are asked for every time.
+- **Administrator rights, one command at a time.** A card shows the exact command, why it is needed
+  and how to go back; after your yes the system shows its own dialog (UAC on Windows). There is never
+  an "always", runs without a person (headless, subagents, background tasks) never get them, a no is
+  not tried again, and locode never sees a password.
+- **A restore point first.** On Windows, before the first command with administrator rights in a
+  session, locode makes a system restore point, or tells you why it could not. Every such command and
+  its result go to `logs/admin.log` in the data folder.
+- **Never**: turning off the antivirus, the firewall, UAC or updates; BIOS or firmware, third-party
+  drivers, registry "cleaners".
+
 ## Better models over time
 
 New open-weight models come out every month. Each release of locode carries a curated catalog: models
@@ -169,6 +202,8 @@ remove them. When the catalog needs a newer locode, it says so.
 - By default the agent asks before it writes a file, runs a command or fetches a URL. Writes are
   limited to the working folder, and destructive commands are always confirmed, in every mode.
   "Always in this session" covers only what the question names: the commands it lists, or one site.
+- Administrator rights are asked for one command at a time, never "always", and only in the window
+  with a person there to answer; the system's own dialog follows locode's question.
 - Settings found inside a project can only restrict what the agent may do until you say you trust
   that folder: a cloned repository cannot approve its own commands.
 - The window talks only to a server on `127.0.0.1`, with a new secret for every run. Links in the
@@ -229,6 +264,9 @@ upstream prebuilt one.
 - **Windows is where it is developed and tested with real models.** The Linux and macOS builds are
   covered by automated tests and by an automated run of the installer, `doctor`, the window (macOS)
   and uninstall, not by daily use.
+- **Work on the PC is tried on Windows with real models**, with the classic UAC dialog. Windows 11's
+  new *Administrator protection* and the macOS and Linux prompts are covered by tests, not yet by use.
+  It is not in the terminal agent.
 - **The programs are not code-signed.** See the warnings under *Install*. Antivirus software or
   company policy may still object, and Windows 11 Smart App Control, where it is turned on, blocks
   unsigned programs with no per-app exception. If you download a macOS binary with a browser instead
